@@ -10,14 +10,24 @@ using namespace std;
  *
  */
 const int n = 20;
-const double lymda = 1.0;
+const double lymda = 1;
 const double a =0;
-double cc = 0;
-double d =1;
-const double b =1;
+//double cc = 0;
+//double d =1;
+//const int pi = acos(-1);
+
+const double b = 1;
 const complex<double> icomp(0, 1);
 double phi(double a, double b, double xi, int i);
 complex<double>middlepryam1(double a1, double b1, double y);
+
+double x(double t) {
+    return(cos(t));
+}
+
+double xii(double t) {
+    return(sin(t));
+}
 
 complex<double>Green(double p) {
     return(icomp * (_j0(p) + icomp * _y0(p)) / 4.0);
@@ -32,21 +42,29 @@ complex<double> K(double x, double y) {
 }
 
 complex<double> U0(double xi) {
-    complex<double> ed(1, 0);
-    return (middlepryam1(0,1,xi));
+    //complex<double> ed(1, 0);
+    return (1);
 
 }
 
 complex<double> middlepryam(double a1, double b1) {
-    double nn = 100, h1, x1, i;
+    double nn = 1000, h1, x1, i,c;
+
+    if (b1 < a1) {
+        c =b1;
+        b1 = a1;
+        a1 = c;
+    }
+
     complex<double>in(0, 0);
     h1 = (b1 - a1) / nn;
     x1 = a1 + (h1 / 2);
     while (x1 <= b1 - (h1 / 2)) {
+      //  cout<<"ya ne zahozhu"<< endl;
         in = in + (U0(x1));
         x1 = x1 + h1;
     }
-
+   // cout << " in= " << in << endl;
     return in * h1;
 }
 complex<double> middlepryam1(double a1, double b1,double xi) {
@@ -59,18 +77,26 @@ complex<double> middlepryam1(double a1, double b1,double xi) {
         x1 = x1 + h1;
         i++;
     }
-
+    //cout << " in= " << in << endl;
     return in * h1;
 }
-
-
 
 // в этой подпрограмме ошибка 
 // интеграл вычисляля неправильно
 // провербьте на К=1. Я написал свое интегрирование. Теперь решается и с логарифмическим ядром.
 complex<double> middlepryam2(double a2, double b2, double a1, double b1) {
-    double nn = 100, h2, h1, x2, x1, i;
+    double nn = 100, h2, h1, x2, x1, i,c;
     complex<double> in(0, 0);
+    if (b1 < a1) {
+        c = b1;
+        b1 = a1;
+        a1 = c;
+    }
+    if (b2 < a2) {
+        c = b2;
+        b2 = a2;
+        a2 = c;
+    }
     h2 = (b2 - a2) / nn;
     h1 = (b1 - a1) / nn;
     x2 = a2 + (h2 / 2);
@@ -92,13 +118,13 @@ complex<double> middlepryam2(double a2, double b2, double a1, double b1) {
     }
         */
 
-    for (int i1 = 0; i1 < nn; i1++)
+    for (int i1 = 0; i1 < nn; i1++){
         for (int i2 = 0; i2 < nn; i2++) {
             x1 = a1 + (i1 + 0.5) * h1;
             x2 = a2 + (i2 + 0.5) * h2;
             if (abs(x1 - x2) > 1e-10) in += K(x1, x2);
         }
-
+}
     return in * h2 * h1;
 
 }
@@ -173,7 +199,7 @@ void Gauss(int k, complex<double> Matrix[n][n + 1]) {
 
 int main(int argc, char** argv) {
 
-    double h, x[n + 1], xi[n];
+    double h, t[n + 1], xi[n];
     int i, j, k;
 
     complex<double> A[n][n + 1], c[n];
@@ -182,8 +208,8 @@ int main(int argc, char** argv) {
 
     for (i = 0; i < n + 1; i++) {
 
-        x[i] = a + i * h;
-        cout << x[i] << endl;
+        t[i] = a + i * h;
+        cout << t[i] << endl;
     }
 
    //cout << middlepryam2(x[0], x[1], x[4], x[5]) << endl;
@@ -192,25 +218,27 @@ int main(int argc, char** argv) {
 
     for (i = 0; i < n; i++) {
 
-        xi[i] = x[i] + (h / 2);
-        cout << xi[i] << endl;
+        //cout<<"xi = " << xii(t[i]) << endl;
     }
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) { 
+       // cout<<"x= " << x(t[i]) << endl;
         for (j = 0; j < n; j++) {
+
             // cout << " j= " << j << " x (j)= " << x[j] << " x (j+1)= " << x[j + 1] << endl;
             //if ((x[i]<cc)||(x[i]>d)||(x[j] < cc) || (x[j] > d)) {
             // A[i][j] = del(i,j)*h-lymda * middlepryam2(x[j], x[j + 1], x[i], x[i + 1]);
             //    //cout << "voshlo" << endl;
             //}
             /*else {  */
-                A[i][j] = lymda * middlepryam2(x[j], x[j + 1], x[i], x[i + 1]);
+           
+                A[i][j] = lymda * middlepryam2(x(t[j]), x(t[j + 1]), x(t[i]), x(t[i + 1]));
              
            /* }*/
             
         }
 
-        // cout << "yawol= " << xi[i] << endl;
-        A[i][n] = middlepryam(x[i], x[i + 1]);
+        //cout << "yawol= " << x(t[i])<< " loway= "<< x(t[i + 1]) << endl;
+        A[i][n] = middlepryam(x(t[i]), x(t[i + 1]));
         // 1 - (xi[i] * log(abs(xi[i])) - log(abs(xi[i] - 1)) * xi[i] + log(abs(xi[i] - 1)) - 1);
 
 
@@ -251,10 +279,12 @@ int main(int argc, char** argv) {
         }
         c[i] = A[i][n];
         cout << endl;
+
     }
+    cout << endl;
     //double bbc = sqrt((xi[i] * xi[i]) + (x[i] * x[i]));
     for (i = 0; i < n; i++) {
-        cout << u(xi[i], c) << "  " << endl;
+        cout << u(xii(t[i]), c) << "  " << endl;
     }
 
     return 0;
