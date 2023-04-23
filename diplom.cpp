@@ -9,12 +9,13 @@ using namespace std;
 /*
  *
  */
+const double pi = acos(-1);
 const int n = 20;
 const double lymda = 1;
 const double a =0;
 //double cc = 0;
 //double d =1;
-//const int pi = acos(-1);
+
 
 const double b = 1;
 const complex<double> icomp(0, 1);
@@ -28,7 +29,12 @@ double x(double t) {
 double xii(double t) {
     return(sin(t));
 }
-
+double prx(double t) {
+    return ((x(t + 0.000001) - x(t- 0.000001)) /(2* 0.000001));
+}
+double pry(double t) {
+    return( (xii(t + 0.000001) - xii(t- 0.000001)) / (2*0.000001));
+}
 complex<double>Green(double p) {
     return(icomp * (_j0(p) + icomp * _y0(p)) / 4.0);
     //return(1.0 / (4.0 * icomp) * exp(icomp * p));
@@ -59,16 +65,17 @@ complex<double> middlepryam(double a1, double b1) {
     complex<double>in(0, 0);
     h1 = (b1 - a1) / nn;
     x1 = a1 + (h1 / 2);
-    while (x1 <= b1 - (h1 / 2)) {
-      //  cout<<"ya ne zahozhu"<< endl;
-        in = in + (U0(x1));
-        x1 = x1 + h1;
+    for (i = 0; i < nn; i++) {
+        //cout<<"ya ne zahozhu"<< endl;
+        in += (U0(x1+i*h1) * ( sqrt(  prx(x1 + i * h1)* prx(x1 + i * h1) + pry(x1 + i * h1)* pry(x1 + i * h1) ) ));
+       // cout << " = " << in << endl;
+        
     }
-   // cout << " in= " << in << endl;
+    //cout << " in= " << in <<" h1= "<<h1 << endl;
     return in * h1;
 }
 complex<double> middlepryam1(double a1, double b1,double xi) {
-    double nn = 100, h1, x1, i=0;
+    double nn = 0100, h1, x1, i=0;
     complex<double>in(0, 0);
     h1 = (b1 - a1) / nn;
     x1 = a1 + (h1 / 2);
@@ -205,7 +212,7 @@ int main(int argc, char** argv) {
     complex<double> A[n][n + 1], c[n];
     complex<double> ed(1, 0);
     h = (b - a) / n;
-
+    cout << "integral = " << middlepryam(0.5*pi , pi)<<"  "<< 0.5 * pi<<" "<< pi << endl;
     for (i = 0; i < n + 1; i++) {
 
         t[i] = a + i * h;
@@ -236,15 +243,9 @@ int main(int argc, char** argv) {
            /* }*/
             
         }
-
         //cout << "yawol= " << x(t[i])<< " loway= "<< x(t[i + 1]) << endl;
-        A[i][n] = middlepryam(x(t[i]), x(t[i + 1]));
+        A[i][n] = middlepryam(t[i], t[i + 1]);
         // 1 - (xi[i] * log(abs(xi[i])) - log(abs(xi[i] - 1)) * xi[i] + log(abs(xi[i] - 1)) - 1);
-
-
-
-
-
      // exp(icomp * xi[i]) - (icomp * exp(icomp) - exp(icomp) * icomp * xi[i] - exp(icomp) + icomp * xi[i] + ed);
   // 
   //cos(xi[i])+icomp*sin(xi[i])- lymda *(icomp*exp(icomp)-exp(icomp)*icomp*xi[i]-exp(icomp)+icomp*xi[i]+(1.0,0.0)); 
