@@ -127,9 +127,9 @@ complex<double> middlepryam2(double a2, double b2, double a1, double b1) {
 	*/
 
 	for (int i1 = 0; i1 < nn; i1++) {
-		t1 = a1 + (i + 0.5) * h1;
+		t1 = a1 + (i1 + 0.5) * h1;
 		for (int i2 = 0; i2 < nn; i2++) {
-			t2 = a2 + (i + 0.5) * h2;
+			t2 = a2 + (i2 + 0.5) * h2;
 			if (abs(t1 - t2) > 1e-10) in += K(x(t1), xii(t1),x(t2),xii(t2)) * (sqrt(prx(t2) * prx(t2) + pry(t2) * pry(t2)));
 		}
 		in *= (sqrt(prx(t1) * prx(t1) + pry(t1) * pry(t1)));
