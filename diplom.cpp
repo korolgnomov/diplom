@@ -159,7 +159,7 @@ double del(int i, int j) {
 
 // Зачем пересчитывать x[j] при каждом обращении к phi?
 // массив x[j] заполнен в начале программы... (?)
-double phi(double t[n2+2], double xi, int i) {
+double phi(double t[n+1], double xi, int i) {
 	double h, s;
 	//int j;
 
@@ -181,12 +181,16 @@ double phi(double t[n2+2], double xi, int i) {
 
 }
 
-complex<double> u(double xi, complex<double> c[n2], double t[n2]) {
+complex<double> u(double xi, complex<double> c[n2], double t1[n+1],double t2[n+1]) {
 	int i;
 	complex<double> s(0, 0);
 	for (i = 0; i < n2; i++) {
-		s = s + c[i] * phi(t, xi, i);
-
+		if (i < n) {
+			s = s + c[i] * phi(t1, xi, i);
+		}
+		if (i >= n) {
+			s = s + c[i] * phi(t2, xi, i-n);
+		}
 	}
 	return(s);
 }
@@ -212,7 +216,7 @@ void Gauss(int k, complex<double> Matrix[n2][n2+1]) {
 }
 int main(int argc, char** argv) {
 
-	double h,h1, t[2*n+2], xi[n];
+	double h,h1, t1[n+1], t2[n + 1], xi[n];
 	int i, j, k;
 	complex<double> A[n2][n2 + 1], c[n2];
 	complex<double> ed(1, 0);
@@ -221,29 +225,34 @@ int main(int argc, char** argv) {
 	// cout << "integral = " << middlepryam(0.5*pi , pi)<<" "<< 0.5 * pi<<" "<< pi << endl;
 	for (i = 0; i < n+1; i++) {
 
-		t[i] = a + i * h;
+		t1[i] = a + i * h;
 		
 	}
-	for (i = 0; i < n+1; i++) {
+	for (i = 0; i < n + 1; i++) {
 
-		t[i+n] = cc + i * h1;
-		
+		t2[i] = cc + i * h1;
+
 	}
+
 	//cout << middlepryam2(x[0], x[1], x[4], x[5]) << endl;
 	//system("pause");
-	for (i = 0; i < 2*n; i++) {
+	for (i = 0; i < n+1; i++) {
 
-		cout << t[i] << endl;
+		cout << t1[i] << endl;
 
 	}
+	for (i = 0; i < n + 1; i++) {
 
-	for (i = 0; i < n; i++) {
+		cout << t2[i] << endl;
 
-		//cout<<"xi = " << xii(t[i]) << endl;
 	}
-	for (i = 0; i <2*n; i++) {
+	//for (i = 0; i < n; i++) {
+
+	//	//cout<<"xi = " << xii(t[i]) << endl;
+	//}
+	for (i = 0; i <n2; i++) {
 		// cout<<"x= " << x(t[i]) << endl;
-		for (j = 0; j < 2*n; j++) {
+		for (j = 0; j < n2; j++) {
 
 			// cout << " j= " << j << " x (j)= " << x[j] << " x (j+1)= " << x[j + 1] << endl;
 			//if ((x[i]<cc)||(x[i]>d)||(x[j] < cc) || (x[j] > d)) {
@@ -251,28 +260,28 @@ int main(int argc, char** argv) {
 			// //cout << "voshlo" << endl;
 			//}
 			/*else { */
-			if( (i <= n) && (j <= n)) {
-				A[i][j] = lymda * middlepryam2(t[j], t[j + 1], t[i], t[i + 1],1,1);
+			if( (i < n) && (j < n)) {
+				A[i][j] = lymda * middlepryam2(t1[j], t1[j + 1] ,t1[i], t1[i + 1],1,1);
 			}
-			if ((i <= n) && (j > n)) {
-				A[i][j] = lymda * middlepryam2(t[i], t[i + 1],t[j], t[j + 1],1,2);
+			if ((i < n) && (j >= n)) {
+				A[i][j] = lymda * middlepryam2(t1[i], t1[i + 1],t2[j-n], t2[j -n+ 1],1,2);
 			}
-			if ((i > n) && (j <= n)) {
-				A[i][j] = lymda * middlepryam2(t[i], t[i + 1], t[j], t[j + 1],2,1);
+			if ((i >= n) && (j < n)) {
+				A[i][j] = lymda * middlepryam2(t2[i-n], t2[i-n + 1], t1[j], t1[j + 1],2,1);
 			}
-			if ((i > n) && (j > n)) {
-				A[i][j] = lymda * middlepryam2(t[j], t[j + 1],t[i], t[i + 1],2,2);
+			if ((i >= n) && (j >= n)) {
+				A[i][j] = lymda * middlepryam2(t2[j-n], t2[(j -n)+1],t2[i-n], t2[(i -n)+ 1],2,2);
 			}
 
 			/* }*/
 
 		}
 		//cout << "yawol= " << x(t[i])<< " loway= "<< x(t[i + 1]) << endl;
-		if ((i <= n+1)) {
-			A[i][n2] = middlepryam(t[i], t[i + 1], 1);
+		if ((i < n)) {
+			A[i][n2] = middlepryam(t1[i], t1[i + 1], 1);
 		}
-		if ((i > n+1)) {
-			A[i][n2] = middlepryam(t[i], t[i + 1], 2);
+		if ((i >= n)) {
+			A[i][n2] = middlepryam(t2[i-n], t2[(i + 1)-n], 2);
 		}
 		
 		// 1 - (xi[i] * log(abs(xi[i])) - log(abs(xi[i] - 1)) * xi[i] + log(abs(xi[i] - 1)) - 1);
@@ -314,9 +323,15 @@ int main(int argc, char** argv) {
 	}
 	cout << endl;
 	//double bbc = sqrt((xi[i] * xi[i]) + (x[i] * x[i]));
+	
 	for (i = 0; i < 2*n; i++) {
-		cout << u(t[i], c, t) << " " << endl;
-	}
-
+		if (i < n) {
+			cout << u(t1[i], c, t1,t2) << " " << endl;
+		}
+		if (i >= n) {
+			cout << u(t2[i-n], c, t1, t2) << " " << endl;
+		}
+		
+}
 	return 0;
 }
