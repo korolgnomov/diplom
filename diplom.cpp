@@ -2,7 +2,7 @@
 #include<iostream>
 #include<math.h>
 #include <complex>
-
+#include<fstream>
 //#include "complex.h"
 using namespace std;
 
@@ -15,24 +15,24 @@ const double lymda = 1;
 const double a = 0;
 const double b = pi/2;
 const int n2 = 2 * n;
-double cc = 1;
-double d =2;
+double cc = 4;
+double d =6;
 const complex<double> icomp(0, 1);
 double phi(double a, double b, double xi, int i);
-complex<double>middlepryam1(double a1, double b1, double y);
+//complex<double>middlepryam1(double a1, double b1, double y);
 
 double x(double t, int num) {
 	switch (num)
 	{
 	case 1: return(cos(t));
-	case 2: return (pow(t, 2) / 2);
+	case 2: return (t);
 	}
 }
 double xii(double t, int num) {
 	switch (num)
 	{
 	case 1:return(sin(t));
-	case 2: return (t);
+	case 2: return (0.5*t);
 	}
 }
 double prx(double t, int num) {
@@ -83,6 +83,28 @@ complex<double> middlepryam(double a1, double b1, int num) {
 	//cout << " in= " << in <<" h1= "<<h1 << endl;
 	return in * h1;
 }
+complex<double> middlepryam1(double a2, double b2, double a1, double b1, complex<double> phi[n],int ires, int num) {
+	double nn = 100, h1, x1, y1, t,t2, i, c,h2;
+
+
+	complex<double>in(0, 0);
+	
+	h1 = (b2 - a2) / nn;
+	
+
+	for (i = 0; i < nn; i++) {
+		t = a2 + (i + 0.5) * h1;
+		
+		//x1 = x(t, num);
+		//y1 = xii(t, num);
+		//cout<<"ya ne zahozhu"<< endl;
+		in += (K(x(t, num), xii(a1, num), x(t, num), xii(b1, num))*phi[ires] * (sqrt(prx(t, num) * prx(t, num) + pry(t, num) * pry(t, num))));
+		// cout << " = " << in << endl;
+
+	}
+	//cout << " in= " << in <<" h1= "<<h1 << endl;
+	return in * h1;
+}
 //complex<double> middlepryam1(double a1, double b1, double xi) {
 //	double nn = 100, h1, x1, i = 0;
 //	complex<double>in(0, 0);
@@ -116,7 +138,7 @@ complex<double> middlepryam2(double a2, double b2, double a1, double b1,  int nu
 	h2 = (b2 - a2) / nn;
 	h1 = (b1 - a1) / nn;
 	
-	t2 = a2 + (i + 0.5) * h2;
+	//t2 = a2 + (i + 0.5) * h2;
 	//cout<<" x= "<<x<<endl;
 	/*while (x1 < b1) {
 	while (x2 < b2) {
@@ -171,7 +193,7 @@ double phi(double t[n+1], double xi, int i) {
 	// x[j] = a + j * h;
 
 	// }
-	if ((xi >=(t[i])) && (xi <= t[i + 1]))
+	if ((xi >=(t[i])) && (xi < t[i + 1]))
 		s = 1;
 
 	else
@@ -184,7 +206,7 @@ double phi(double t[n+1], double xi, int i) {
 complex<double> u(double xi, complex<double> c[n2], double t1[n+1],double t2[n+1]) {
 	int i;
 	complex<double> s(0, 0);
-	for (i = 0; i < n2; i++) {
+	for (i = 0; i < 2*n; i++) {
 		if (i < n) {
 			s = s + c[i] * phi(t1, xi, i);
 		}
@@ -215,11 +237,13 @@ void Gauss(int k, complex<double> Matrix[n2][n2+1]) {
 	}
 }
 int main(int argc, char** argv) {
-
+	
 	double h,h1, t1[n+1], t2[n + 1], xi[n];
 	int i, j, k;
-	complex<double> A[n2][n2 + 1], c[n2];
+	complex<double> A[n2][n2 + 1], c[n2],res1[n], res2[n];
 	complex<double> ed(1, 0);
+	fstream out1("1ecr.txt");
+	fstream out2("2ecr.txt");
 	h = (b - a) / n;
 	h1 = (d -cc ) / n;
 	// cout << "integral = " << middlepryam(0.5*pi , pi)<<" "<< 0.5 * pi<<" "<< pi << endl;
@@ -234,8 +258,8 @@ int main(int argc, char** argv) {
 
 	}
 
-	//cout << middlepryam2(x[0], x[1], x[4], x[5]) << endl;
-	//system("pause");
+	/*cout << middlepryam2(x[0], x[1], x[4], x[5]) << endl;
+	system("pause");*/
 	for (i = 0; i < n+1; i++) {
 
 		cout << t1[i] << endl;
@@ -246,10 +270,10 @@ int main(int argc, char** argv) {
 		cout << t2[i] << endl;
 
 	}
-	//for (i = 0; i < n; i++) {
+	for (i = 0; i < n; i++) {
 
-	//	//cout<<"xi = " << xii(t[i]) << endl;
-	//}
+		//cout<<"xi = " << xii(t[i]) << endl;
+	}
 	for (i = 0; i <n2; i++) {
 		// cout<<"x= " << x(t[i]) << endl;
 		for (j = 0; j < n2; j++) {
@@ -311,27 +335,69 @@ int main(int argc, char** argv) {
 	Gauss(0, A);
 
 	for (i = 0; i <2* n; i++) {
-		for (j = 0; j <2*n + 1; j++) {
+		//for (j = 0; j <2*n + 1; j++) {
 
-			cout << A[i][j] << " ";
+		//	/*cout << A[i][j] << " ";*/
 
 
-		}
+		//}
 		c[i] = A[i][n2];
-		cout << endl;
+		/*cout << endl;*/
 
 	}
-	cout << endl;
+	/*cout << endl;*/
 	//double bbc = sqrt((xi[i] * xi[i]) + (x[i] * x[i]));
 	
 	for (i = 0; i < 2*n; i++) {
 		if (i < n) {
-			cout << u(t1[i], c, t1,t2) << " " << endl;
+			cout <<abs(u(t1[i], c, t1,t2)) << " " << endl;
+			res1[i] = u(t1[i], c, t1, t2);
+			//out1 << x(t1[i], 1) << " " << xii(t1[i], 1) << " " << abs(u(t1[i], c, t1, t2)) << endl;
 		}
 		if (i >= n) {
-			cout << u(t2[i-n], c, t1, t2) << " " << endl;
+			cout << abs(u(t2[i-n], c, t1, t2)) << " " << endl;
+			res2[i] = u(t2[i - n], c, t1, t2);
+			//out2 << x(t2[i-n], 2) << " " << xii(t2[i-n], 2) << " " << abs(u(t2[i-n], c, t1, t2)) << endl;
 		}
 		
-}
+} 
+	complex<double> V[n2][n2]; 
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			if ((t1[i] != t1[j])&&(t1[i]!=t1[j+1])) {
+				V[i][j] = middlepryam1(t1[j],t1[j + 1] ,t1[i] , t1[i+1],res1, i,1);
+			}
+			if (t1[i] == t1[j]) {
+				V[i][j] = middlepryam1(t1[j]+0.001, t1[j + 1], t1[i], t1[i + 1], res1, i, 1);
+			}
+			if (t1[i] == t1[j+1]) {
+				V[i][j] = middlepryam1(t1[j] , t1[j + 1]+ 0.001, t1[i], t1[i + 1], res1, i, 1);
+			}
+			
+
+		}
+	}
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			if ((t2[i] != t2[j]) && (t2[i] != t2[j + 1])) {
+				V[i+n][j+n] = middlepryam1(t2[j], t2[j + 1], t2[i], t2[i + 1], res2, i, 2);
+			}
+			if (t2[i] == t2[j]) {
+				V[i+n][j+n] = middlepryam1(t2[j] + 0.001, t2[j + 1], t1[i], t1[i + 1], res2, i, 2);
+			}
+			if (t2[i] == t2[j + 1]) {
+				V[i+n][j+n] = middlepryam1(t2[j], t2[j + 1] + 0.001, t1[i], t1[i + 1], res2, i, 2);
+			}
+		}
+	}
+	for (i = 0; i <  n; i++) {
+		for (j = 0; j <  n ; j++) {
+			cout << abs(V[i][j]) << " ";
+			out1 << x(t1[i], 1) << " " << xii(t1[j], 1) << " " << V[i][j] << endl;
+		}
+		//cout << endl;
+	}
+	cout << "doshel" << endl;
+	system("pause");
 	return 0;
 }
