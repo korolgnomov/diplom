@@ -15,8 +15,8 @@ const double lymda = 1;
 const double a = 0;
 const double b = pi/2;
 const int n2 = 2 * n;
-double cc = 4;
-double d =6;
+double cc = pi;
+double d =1.5*pi;
 const complex<double> icomp(0, 1);
 double phi(double a, double b, double xi, int i);
 //complex<double>middlepryam1(double a1, double b1, double y);
@@ -25,14 +25,14 @@ double x(double t, int num) {
 	switch (num)
 	{
 	case 1: return(cos(t));
-	case 2: return (t);
+	case 2: return (cos(t));
 	}
 }
 double xii(double t, int num) {
 	switch (num)
 	{
 	case 1:return(sin(t));
-	case 2: return (0.5*t);
+	case 2: return (sin(t));
 	}
 }
 double prx(double t, int num) {
@@ -83,22 +83,21 @@ complex<double> middlepryam(double a1, double b1, int num) {
 	//cout << " in= " << in <<" h1= "<<h1 << endl;
 	return in * h1;
 }
-complex<double> middlepryam1(double a2, double b2, double a1, double b1, complex<double> phi[n],int ires, int num) {
-	double nn = 100, h1, x1, y1, t,t2, i, c,h2;
+complex<double> middlepryam1(double x1, double x2, double a1, double b1, complex<double> phi[n],int ires, int num) {
+	double nn = 100, h1, t,t2, i, c,h2;
 
 
 	complex<double>in(0, 0);
 	
-	h1 = (b2 - a2) / nn;
+	h1 = (b1 - a1) / nn;
 	
 
 	for (i = 0; i < nn; i++) {
-		t = a2 + (i + 0.5) * h1;
-		
+		t = a1 + (i + 0.5) * h1;
 		//x1 = x(t, num);
 		//y1 = xii(t, num);
 		//cout<<"ya ne zahozhu"<< endl;
-		in += (K(x(t, num), xii(a1, num), x(t, num), xii(b1, num))*phi[ires] * (sqrt(prx(t, num) * prx(t, num) + pry(t, num) * pry(t, num))));
+		in += (K(x1, xii(t, num), x2,  xii(a1 + (i+1 + 0.5) * h1, num))*phi[ires] * (sqrt(prx(t, num) * prx(t, num) + pry(t, num) * pry(t, num))));
 		// cout << " = " << in << endl;
 
 	}
@@ -240,10 +239,12 @@ int main(int argc, char** argv) {
 	
 	double h,h1, t1[n+1], t2[n + 1], xi[n];
 	int i, j, k;
-	complex<double> A[n2][n2 + 1], c[n2],res1[n], res2[n];
+	complex<double> A[n2][n2 + 1], c[n2],res1[n+1], res2[n+1];
 	complex<double> ed(1, 0);
 	fstream out1("1ecr.txt");
 	fstream out2("2ecr.txt");
+	fstream out3("3ecr.txt");
+	fstream out4("4ecr.txt");
 	h = (b - a) / n;
 	h1 = (d -cc ) / n;
 	// cout << "integral = " << middlepryam(0.5*pi , pi)<<" "<< 0.5 * pi<<" "<< pi << endl;
@@ -352,52 +353,63 @@ int main(int argc, char** argv) {
 		if (i < n) {
 			cout <<abs(u(t1[i], c, t1,t2)) << " " << endl;
 			res1[i] = u(t1[i], c, t1, t2);
-			//out1 << x(t1[i], 1) << " " << xii(t1[i], 1) << " " << abs(u(t1[i], c, t1, t2)) << endl;
+			out1 << x(t1[i], 1) << " " << xii(t1[i], 1) << " " << abs(u(t1[i], c, t1, t2)) << endl;
 		}
+		if (i == n)cout << endl << "na 2-om ecrane" << endl;
 		if (i >= n) {
 			cout << abs(u(t2[i-n], c, t1, t2)) << " " << endl;
-			res2[i] = u(t2[i - n], c, t1, t2);
-			//out2 << x(t2[i-n], 2) << " " << xii(t2[i-n], 2) << " " << abs(u(t2[i-n], c, t1, t2)) << endl;
+			res2[i-n] = u(t2[i - n], c, t1, t2);
+			out2 << x(t2[i-n], 2) << " " << xii(t2[i-n], 2) << " " << abs(u(t2[i-n], c, t1, t2)) << endl;
 		}
 		
 } 
-	complex<double> V[n2][n2]; 
-	for (i = 0; i < n; i++) {
-		for (j = 0; j < n; j++) {
-			if ((t1[i] != t1[j])&&(t1[i]!=t1[j+1])) {
-				V[i][j] = middlepryam1(t1[j],t1[j + 1] ,t1[i] , t1[i+1],res1, i,1);
-			}
-			if (t1[i] == t1[j]) {
-				V[i][j] = middlepryam1(t1[j]+0.001, t1[j + 1], t1[i], t1[i + 1], res1, i, 1);
-			}
-			if (t1[i] == t1[j+1]) {
-				V[i][j] = middlepryam1(t1[j] , t1[j + 1]+ 0.001, t1[i], t1[i + 1], res1, i, 1);
-			}
-			
+	complex<double> V[n2];
+	//for (i = 0; i < n; i++) {
+	//	for (j = 0; j < n; j++) {
+	//		if ((t1[i] != t1[j])&&(t1[i]!=t1[j+1])) {
+	//			V[i][j] = middlepryam1(t1[j],t1[j + 1] ,t1[i] , t1[i+1],res1, i,1);
+	//		}
+	//		if (t1[i] == t1[j]) {
+	//			V[i][j] = middlepryam1(t1[j]+0.001, t1[j + 1], t1[i], t1[i + 1], res1, i, 1);
+	//		}
+	//		if (t1[i] == t1[j+1]) {
+	//			V[i][j] = middlepryam1(t1[j] , t1[j + 1]+ 0.001, t1[i], t1[i + 1], res1, i, 1);
+	//		}
+	//		
 
+	//	}
+	//}
+	//for (i = 0; i < n; i++) {
+	//	for (j = 0; j < n; j++) {
+	//		if ((t2[i] != t2[j]) && (t2[i] != t2[j + 1])) {
+	//			V[i+n][j+n] = middlepryam1(t2[j], t2[j + 1], t2[i], t2[i + 1], res2, i, 2);
+	//		}
+	//		if (t2[i] == t2[j]) {
+	//			V[i+n][j+n] = middlepryam1(t2[j] + 0.001, t2[j + 1], t1[i], t1[i + 1], res2, i, 2);
+	//		}
+	//		if (t2[i] == t2[j + 1]) {
+	//			V[i+n][j+n] = middlepryam1(t2[j], t2[j + 1] + 0.001, t1[i], t1[i + 1], res2, i, 2);
+	//		}
+	//	}
+	//}
+	cout << endl << "vne" << endl;
+	for (i = 0; i <  n2; i++) {
+		if (i < n) {
+			V[i] = abs(middlepryam1(x(t1[0], 1), x(t1[1], 1), t1[i], t1[i + 1], res1, i, 1));
+			cout << abs(middlepryam1(x(t1[0],1), x(t1[1], 1),t1[i],t1[i+1],res1,i,1)) << endl;;
+			out3 << x(t1[i], 1) << " " << xii(t1[i], 1) << " " << V[i] << endl;
 		}
-	}
-	for (i = 0; i < n; i++) {
-		for (j = 0; j < n; j++) {
-			if ((t2[i] != t2[j]) && (t2[i] != t2[j + 1])) {
-				V[i+n][j+n] = middlepryam1(t2[j], t2[j + 1], t2[i], t2[i + 1], res2, i, 2);
-			}
-			if (t2[i] == t2[j]) {
-				V[i+n][j+n] = middlepryam1(t2[j] + 0.001, t2[j + 1], t1[i], t1[i + 1], res2, i, 2);
-			}
-			if (t2[i] == t2[j + 1]) {
-				V[i+n][j+n] = middlepryam1(t2[j], t2[j + 1] + 0.001, t1[i], t1[i + 1], res2, i, 2);
-			}
+		if(i==n)cout << endl << "na 2-om ecrane" << endl;
+		if (i >= n) {
+			V[i] = abs(middlepryam1(x(t2[0], 2), x(t2[1], 2), t2[i-n], t2[i-n + 1], res2, i-n, 2));
+			cout << abs(middlepryam1(x(t2[0], 2), x(t2[1], 2), t2[i-n], t2[i-n + 1], res2, i-n, 2)) << endl;;
+			out4 << x(t2[i-n],2) << " " << xii(t2[i-n], 2) << " " << V[i] << endl;
 		}
-	}
-	for (i = 0; i <  n; i++) {
-		for (j = 0; j <  n ; j++) {
-			cout << abs(V[i][j]) << " ";
-			out1 << x(t1[i], 1) << " " << xii(t1[j], 1) << " " << V[i][j] << endl;
-		}
+
+		
 		//cout << endl;
 	}
-	cout << "doshel" << endl;
+	//cout << "doshel" << endl;
 	system("pause");
 	return 0;
 }
