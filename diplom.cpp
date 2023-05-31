@@ -83,7 +83,7 @@ complex<double> middlepryam(double a1, double b1, int num) {
 	//cout << " in= " << in <<" h1= "<<h1 << endl;
 	return in * h1;
 }
-complex<double> middlepryam1(double x1, double x2, double a1, double b1, complex<double> phi[n],int ires, int num) {
+complex<double> middlepryam1(double x1, double y1, double a1, double b1, complex<double> phi[n],int ires, int num) { // num убрать должна быть сумма двух интегралов
 	double nn = 100, h1, t,t2, i, c,h2;
 
 
@@ -97,7 +97,7 @@ complex<double> middlepryam1(double x1, double x2, double a1, double b1, complex
 		//x1 = x(t, num);
 		//y1 = xii(t, num);
 		//cout<<"ya ne zahozhu"<< endl;
-		in += (K(x1, xii(t, num), x2,  xii(a1 + (i+1 + 0.5) * h1, num))*phi[ires] * (sqrt(prx(t, num) * prx(t, num) + pry(t, num) * pry(t, num))));
+		in += (K(x1, y1, x(t,num), xii(t, num)) * phi[ires] * (sqrt(prx(t, num) * prx(t, num) + pry(t, num) * pry(t, num))));
 		// cout << " = " << in << endl;
 
 	}
@@ -241,10 +241,10 @@ int main(int argc, char** argv) {
 	int i, j, k;
 	complex<double> A[n2][n2 + 1], c[n2],res1[n+1], res2[n+1];
 	complex<double> ed(1, 0);
-	fstream out1("1ecr.txt");
-	fstream out2("2ecr.txt");
-	fstream out3("3ecr.txt");
-	fstream out4("4ecr.txt");
+	ofstream  out1("1ecr.txt");
+	ofstream  out2("2ecr.txt");
+	ofstream  out3("3ecr.txt");
+	ofstream  out4("4ecr.txt");
 	h = (b - a) / n;
 	h1 = (d -cc ) / n;
 	// cout << "integral = " << middlepryam(0.5*pi , pi)<<" "<< 0.5 * pi<<" "<< pi << endl;
@@ -359,11 +359,11 @@ int main(int argc, char** argv) {
 		if (i >= n) {
 			cout << abs(u(t2[i-n], c, t1, t2)) << " " << endl;
 			res2[i-n] = u(t2[i - n], c, t1, t2);
-			out2 << x(t2[i-n], 2) << " " << xii(t2[i-n], 2) << " " << abs(u(t2[i-n], c, t1, t2)) << endl;
+			out1 << x(t2[i-n], 2) << " " << xii(t2[i-n], 2) << " " << abs(u(t2[i-n], c, t1, t2)) << endl;
 		}
 		
 } 
-	complex<double> V[n2];
+	
 	//for (i = 0; i < n; i++) {
 	//	for (j = 0; j < n; j++) {
 	//		if ((t1[i] != t1[j])&&(t1[i]!=t1[j+1])) {
@@ -393,22 +393,54 @@ int main(int argc, char** argv) {
 	//	}
 	//}
 	cout << endl << "vne" << endl;
-	for (i = 0; i <  n2; i++) {
-		if (i < n) {
-			V[i] = abs(middlepryam1(x(t1[0], 1), x(t1[1], 1), t1[i], t1[i + 1], res1, i, 1));
-			cout << abs(middlepryam1(x(t1[0],1), x(t1[1], 1),t1[i],t1[i+1],res1,i,1)) << endl;;
-			out3 << x(t1[i], 1) << " " << xii(t1[i], 1) << " " << V[i] << endl;
-		}
-		if(i==n)cout << endl << "na 2-om ecrane" << endl;
-		if (i >= n) {
-			V[i] = abs(middlepryam1(x(t2[0], 2), x(t2[1], 2), t2[i-n], t2[i-n + 1], res2, i-n, 2));
-			cout << abs(middlepryam1(x(t2[0], 2), x(t2[1], 2), t2[i-n], t2[i-n + 1], res2, i-n, 2)) << endl;;
-			out4 << x(t2[i-n],2) << " " << xii(t2[i-n], 2) << " " << V[i] << endl;
+	double hvne1 = 0.04;
+	//double hvne2 = (0 -(-1)) / 100;
+	complex<double> V=0;
+	double tperv1, tperv2, tvtr1, tvtr2;
+	for (k =0; k < 100; k++) {
+	tperv1 = -1 + k * hvne1;
+	for (j = 0; j < 100; j++) {
+		tperv2 = -1 + j* hvne1;
+		cout << tperv2 << endl;
+		for (i = 0; i < n2; i++) { 
+
+			if (i < n) {
+						//if (tperv2 == t1[i]) tperv2 + 0.00001;
+						V += abs(middlepryam1(tperv1, tperv2, t1[i], t1[i+1], res1, i, 1));
+						//cout << abs(middlepryam1(tperv1, tperv2, t1[i], t1[i+1], res1, i, 1)) << endl;;
+
+			}
+			if (i >= n) {
+				//cout << "pishu zaebal";
+						V += abs(middlepryam1(tperv1, tperv2, t2[i-n], t2[i-n+1], res2, i-n, 2));
+						//cout << abs(middlepryam1(x(tvtr1, 2), x(tvtr2, 2), t2[i], t2[i+ 1], res2, i, 2)) << endl;;
+			
+			}	
 		}
 
-		
+		out3 << tperv1 << " " << tperv2<< " " << abs(V) << endl;
+		V = 0;
+		}
+}
+		////if(i==n)cout << endl << "na 2-om ecrane" << endl;
+		//for (i = 0; i < n; i++) {
+		//	if(i<n-1){
+		//	for (j = 0; j < 1000; j++) {
+		//		
+		//		tvtr1 = cc + j * hvne1;
+		//		tvtr2 = d + (j + 1) * hvne1;
+		//		if (tvtr1 == t2[i]) tvtr1 + 0.00001;
+		//		if (tvtr2 == t2[i]) tvtr2 + 0.00001;
+		//		V[i+n] = abs(middlepryam1(x(tvtr1, 2), x(tvtr2, 2), t2[i], t2[i + 1], res2, i, 2));
+		//		cout << abs(middlepryam1(x(tvtr1, 2), x(tvtr2, 2), t2[i], t2[i+ 1], res2, i, 2)) << endl;;
+		//		out4 << x(tvtr1, 2) << " " << xii(t2[i], 2) << " " << abs(V[i + n]) << endl;
+		//	}
+		//	}
+		//}
+		//
 		//cout << endl;
-	}
+	
+
 	//cout << "doshel" << endl;
 	system("pause");
 	return 0;
