@@ -13,9 +13,9 @@ const double pi = acos(-1);
 const int n = 10;
 const double lymda = 1;
 const double a = 0;
-const double b = pi/2;
+const double b = 0.5 * pi;
 const int n2 = 2 * n;
-double cc = pi;
+double cc =pi ;
 double d =1.5*pi;
 const complex<double> icomp(0, 1);
 double phi(double a, double b, double xi, int i);
@@ -24,25 +24,25 @@ double phi(double a, double b, double xi, int i);
 double x(double t, int num) {
 	switch (num)
 	{
-	case 1: return(cos(t));
-	case 2: return (cos(t));
+	case 2: return cos(t);
+	case 1: return t;
 	}
 }
 double xii(double t, int num) {
 	switch (num)
 	{
-	case 1:return(sin(t));
-	case 2: return (sin(t));
+	case 2: return sin(t);
+	case 1: return t;
 	}
 }
 double prx(double t, int num) {
-	return ((x(t + 0.000001, num) - x(t - 0.000001, num)) / (2 * 0.000001));
+	return ((x(t + 0.000001, num) - x(t - 0.000001, num)) / (2.0 * 0.000001));
 }
 double pry(double t, int num) {
-	return((xii(t + 0.000001, num) - xii(t - 0.000001, num)) / (2 * 0.000001));
+	return((xii(t + 0.000001, num) - xii(t - 0.000001, num)) / (2.0 * 0.000001));
 }
 complex<double>Green(double p) {
-	return(icomp * (_j0(p) + icomp * _y0(p)) / 4.0);
+	return (- icomp * 0.25)* (_j0(p) + icomp * _y0(p));
 	//return(1.0 / (4.0 * icomp) * exp(icomp * p));
 
 }
@@ -50,7 +50,7 @@ complex<double>Green(double p) {
 
 complex<double> K(double x1, double y1, double x2, double y2) {
 	//return(log(abs(x - y)));
-	double p = sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
+	double p = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
 	return Green(abs(p));
 }
 
@@ -121,22 +121,22 @@ complex<double> middlepryam1(double x1, double y1, double a1, double b1, complex
 // в этой подпрограмме ошибка
 // интеграл вычисляля неправильно
 // провербьте на К=1. Я написал свое интегрирование. Теперь решается и с логарифмическим ядром.
-complex<double> middlepryam2(double a2, double b2, double a1, double b1,  int num1 , int num2) {
+complex<double> middlepryam2(double a1, double b1, double a2, double b2,  int num1 , int num2) {
 	double nn = 100, h2, h1, x2, x1, i=0, c,t1,t2;
 	complex<double> in(0, 0);
-	if (b1 < a1) {
-		c = b1;
-		b1 = a1;
-		a1 = c;
-	}
-	if (b2 < a2) {
-		c = b2;
-		b2 = a2;
-		a2 = c;
-	}
+	//if (b1 < a1) {
+	//	c = b1;
+	//	b1 = a1;
+	//	a1 = c;
+	//}
+	//if (b2 < a2) {
+	//	c = b2;
+	//	b2 = a2;
+	//	a2 = c;
+	//}
 	h2 = (b2 - a2) / nn;
 	h1 = (b1 - a1) / nn;
-	
+	//cout << " h1= " << h1 << " h2= " << h2 << endl;
 	//t2 = a2 + (i + 0.5) * h2;
 	//cout<<" x= "<<x<<endl;
 	/*while (x1 < b1) {
@@ -158,12 +158,14 @@ complex<double> middlepryam2(double a2, double b2, double a1, double b1,  int nu
 		t1 = a1 + (i1 + 0.5) * h1;
 		for (int i2 = 0; i2 < nn; i2++) {
 			t2 = a2 + (i2 + 0.5) * h2;
-			if (abs(t1 - t2) > 1e-10) in += K(x(t1, num1), xii(t1, num1),x(t2, num2),xii(t2, num2)) * (sqrt(prx(t2, num2) * prx(t2, num2) + pry(t2, num2) * pry(t2, num2)));
+			//if (abs(t1 - t2) > 0) cout << " x1 = " << x(t1, num1)<<" y1 = " << xii(t1, num1)<< " x2= " <<x(t2, num2)<< " y2 =" << xii(t2, num2)<< " ker=  "<<  K(x(t1, num1), xii(t1, num1), x(t2, num2), xii(t2, num2))<< " kriv1 = " <<sqrt(prx(t2, num2) * prx(t2, num2) + pry(t2, num2) * pry(t2, num2))<< endl;
+			if (abs(t1 - t2) > 0) in += K(x(t1, num1), xii(t1, num1),x(t2, num2),xii(t2, num2)) * (sqrt(prx(t2, num2) * prx(t2, num2) + pry(t2, num2) * pry(t2, num2)))*(sqrt(prx(t1, num1) * prx(t1, num1) + pry(t1, num1) * pry(t1, num1)));
 		}
-		in *= (sqrt(prx(t1, num1) * prx(t1, num1) + pry(t1, num1) * pry(t1, num1)));
+		//cout << "kriv 2 = " << (sqrt(prx(t1, num1) * prx(t1, num1) + pry(t1, num1) * pry(t1, num1))) << endl;
 	}
+	//cout <<" int = " << in <<" h2= "<<h2<<" h1= "<< h1 << " return= "<< in * h2 * h1 << endl;
 	return in * h2 * h1;
-
+	
 }
 
 
@@ -286,16 +288,16 @@ int main(int argc, char** argv) {
 			//}
 			/*else { */
 			if( (i < n) && (j < n)) {
-				A[i][j] = lymda * middlepryam2(t1[j], t1[j + 1] ,t1[i], t1[i + 1],1,1);
+				A[i][j] = lymda * middlepryam2(t1[i], t1[i + 1],t1[j], t1[j + 1] ,1,1);
 			}
 			if ((i < n) && (j >= n)) {
-				A[i][j] = lymda * middlepryam2(t1[i], t1[i + 1],t2[j-n], t2[j -n+ 1],1,2);
+				A[i][j] = lymda * middlepryam2(t1[i], t1[i + 1],t2[j-n], t2[j-n+ 1],1,2);
 			}
 			if ((i >= n) && (j < n)) {
 				A[i][j] = lymda * middlepryam2(t2[i-n], t2[i-n + 1], t1[j], t1[j + 1],2,1);
 			}
 			if ((i >= n) && (j >= n)) {
-				A[i][j] = lymda * middlepryam2(t2[j-n], t2[(j -n)+1],t2[i-n], t2[(i -n)+ 1],2,2);
+				A[i][j] = lymda * middlepryam2(t2[i-n], t2[(i-n)+ 1],t2[j-n], t2[(j-n)+1],2,2);
 			}
 
 			/* }*/
@@ -393,15 +395,16 @@ int main(int argc, char** argv) {
 	//	}
 	//}
 	cout << endl << "vne" << endl;
-	double hvne1 = 0.04;
+	
 	//double hvne2 = (0 -(-1)) / 100;
 	complex<double> V=0;
-	double tperv1, tperv2, tvtr1, tvtr2;
+	double tperv1, tperv2, tvtr1, tvtr2,nach=-2,kon=2;
+	double hvne1 = (kon-nach)/100;
 	for (k =0; k < 100; k++) {
-	tperv1 = -1 + k * hvne1;
+	tperv1 = nach + k * hvne1;
 	for (j = 0; j < 100; j++) {
-		tperv2 = -1 + j* hvne1;
-		cout << tperv2 << endl;
+		tperv2 = nach + j* hvne1;
+		//cout << tperv2 << endl;
 		for (i = 0; i < n2; i++) { 
 
 			if (i < n) {
