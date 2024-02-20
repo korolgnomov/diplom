@@ -10,7 +10,7 @@ using namespace std;
 *
 */
 const double pi = acos(-1);
-const int n = 25;
+const int n = 100;
 const double lymda = 1;
 const double a = 0;
 const double b =0.5*pi;
@@ -24,16 +24,16 @@ double phi(double a, double b, double xi, int i);
 double x(double t, int num) {
 	switch (num)
 	{
-	case 1: return cos(t)-1;
-	case 2: return pow(cos(t),3);
+	case 1: return pow(cos(t),3);
+	case 2: return cos(t);
 	
 	}
 }
 double xii(double t, int num) {
 	switch (num)
 	{
-	case 1: return sin(t)-1;
-	case 2: return pow( sin(t),3);
+	case 1: return pow(sin(t),3);
+	case 2: return sin(t);
 	
 	}
 }
@@ -62,7 +62,7 @@ complex<double> U0(double x1, double x2) {
 }
 
 complex<double> middlepryam(double a1, double b1, int num) {
-	double nn = 100, h1, x1,y1,t, i, c;
+	double nn = 1000, h1, x1,y1,t, i, c;
 
 	complex<double>in(0, 0);
 	h1 = (b1 - a1) / nn;
@@ -89,7 +89,7 @@ complex<double> middlepryam1(double x1, double y1, double a1, double b1, complex
 	return in ;
 }
 complex<double> middlepryam2(double a1, double b1, double a2, double b2,  int num1 , int num2) {
-	double nn = 100, h2, h11, x2, x1, i=0, c,t1,t2;
+	double nn = 1000, h2, h11, x2, x1, i=0, c,t1,t2;
 	complex<double> in(0, 0);
 	
 	h2 = (b2 - a2) / nn;
@@ -103,7 +103,6 @@ complex<double> middlepryam2(double a1, double b1, double a2, double b2,  int nu
 		}
 	}
 	return in;
-	
 }
 
 double del(int i, int j) {
@@ -174,18 +173,23 @@ int main(int argc, char** argv) {
 	ofstream  out4("4ecr.txt");
 	h = (b - a) / n;
 	h1 = (d -cc ) / n;
-	
+	//
+
+
 	for (i = 0; i < n+1; i++) {
 
 		t1[i] = a + i * h;
 		
-	}
+	}	
+
 	for (i = 0; i < n + 1; i++) {
 
 		t2[i] = cc + i * h1;
 
 	}
+	
 
+	
 	for (i = 0; i < n+1; i++) {
 
 		cout << t1[i] << endl;
@@ -278,7 +282,7 @@ int main(int argc, char** argv) {
 
 			}
 			if (i >= n) {
-						V += abs(middlepryam1(tperv1, tperv2, t2[i-n], t2[i-n+1], res2, i-n, 2))			
+				V += abs(middlepryam1(tperv1, tperv2, t2[i - n], t2[i - n + 1], res2, i - n, 2));
 			}	
 		}
 		out3 << tperv1 << " " << tperv2<< " " << abs(V) << endl;
